@@ -1,13 +1,37 @@
-module Counter(clock, nReset, count);
-	input clock, nReset;
-	parameter MAX_VAL = 4'd9; // must be <= 4'd15
-	output reg [3: 0]count;
+module Counter(inputClock, pause, nReset, count, outputClock);
+	input inputClock, pause, nReset;
+	parameter MAX = 4'd9; // must be < 2^SIZE
+	parameter SIZE = 4;
+	output reg outputClock;
+	output reg [SIZE - 1: 0] count;
 	
-	always @(posedge clock, negedge nReset)
+	always @(negedge inputClock, negedge nReset)
 	begin
-		if (!nReset) count <= 0;
-		else if (count >= MAX_VAL) count <= 0;
-		else count <= count + 4'd1;	
+		if (!nReset)
+		begin
+			count <= 0;
+			outputClock <= 0;
+		end
+		else if (pause)
+		begin
+			count <= count;
+			outputClock <= outputClock;
+		end
+		else if (count == MAX / 2)
+		begin
+			count <= count + 1;
+			outputClock <= 1;
+		end
+		else if (count >= MAX)
+		begin
+			count <= 0;
+			outputClock <= 0;
+		end
+		else 
+		begin
+			count <= count + 1;
+			outputClock <= outputClock;	
+		end
 	end
-
+	
 endmodule
